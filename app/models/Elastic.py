@@ -1,4 +1,5 @@
 import requests
+import re
 from elasticsearch import Elasticsearch
 
 import app.settings as settings
@@ -7,7 +8,15 @@ import app.settings as settings
 class Elastic(Elasticsearch):
 
     def __init__(self, domain):
-        Elasticsearch.__init__(self, [{'host': domain}])
+        auth = self._get_auth()
+        host = self._get_host(auth)
+        es_header = [{
+            'host': host,
+            'port': 443,
+            'use_ssl': True,
+            'http_auth': (auth[0], auth[1])
+        }]
+        Elasticsearch.__init__(self, es_header)
 
     def get_doc(self, identifier):
         try:
@@ -24,3 +33,10 @@ class Elastic(Elasticsearch):
 
     def update_doc(self, identifier, document):
         return self.update(settings.index, settings.doc_type, id=identifier, body=document)
+
+    def _get_auth(self):
+        return re.search('https\:\/\/(.*)\@',
+                         settings.host).group(1).split(':')
+
+    def _get_host(self, auth):
+        return settings.host.replace('https://%s:%s@' % (auth[0], auth[1]), '')
