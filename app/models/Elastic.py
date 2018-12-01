@@ -6,8 +6,8 @@ import app.settings as settings
 
 class Elastic(Elasticsearch):
 
-    def __init__(self, domain, port):
-        Elasticsearch.__init__(self, [{'host': domain, 'port': port}])
+    def __init__(self, domain):
+        Elasticsearch.__init__(self, [{'host': domain}])
 
     def get_doc(self, identifier):
         try:

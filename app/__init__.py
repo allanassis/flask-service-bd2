@@ -1,9 +1,10 @@
 from flask import Flask, request
 from app.models.Elastic import Elastic
+import app.settings as settings
 import json
 
 app = Flask(__name__)
-es = Elastic("localhost", 9200)
+es = Elastic(settings.host)
 
 
 @app.route("/", methods=["GET"])
